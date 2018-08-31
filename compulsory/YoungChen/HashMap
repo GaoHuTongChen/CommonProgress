@@ -1,3 +1,4 @@
+
 HashMap 是最简单的，一来我们非常熟悉，二来就是它不支持并发操作，所以源码也非常简单。
 
 首先，我们用下面这张图来介绍 HashMap 的结构。
@@ -18,6 +19,9 @@ threshold：扩容的阈值，等于 capacity * loadFactor
 
 总结一下key, value, hash 值和用于单向链表的 next就是一个数组加链表。 保证了查询的时间复杂度像数组靠齐lg1，查找时间复杂度像链表靠齐lg1。
 简单的介绍就不说了，直接上源码吧。
+
+
+```
 final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                    boolean evict) {
         Node<K,V>[] tab; Node<K,V> p; int n, i;
@@ -61,6 +65,10 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
         afterNodeInsertion(evict);
         return null;
     }
-    
-    
+```
+
+
+
+
+    转载
     http://www.importnew.com/20386.html
