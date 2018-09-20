@@ -5,9 +5,10 @@
 ## JMM结构模型
 在理解volatile之前，需要先来了解一些其他知识，这里先了解下JMM的结构模型。由于CPU处理速度和主存的读写速度差距较大，所以每个CPU会有缓存。一般对于一个共享变量，会先存放在主存中，每启动一个线程时，每个线程都有属于自己的工作内存，并会将主存的共享变量拷贝到自己的工作内存，之后读写操作均对于工作内存的变量副本，并在某个时刻会将工作内存中的变量副本写到主存中去，大致流程可如下图所示。  
 ![](3.png)  
->在上面A线程和B线程完成通讯主要经历2步骤。  
+
+在上面A线程和B线程完成通讯主要经历2步骤。  
 >1.线程A从主内存中将共享变量读入线程A的工作内存后并进行操作，之后将数据重新写会主内存中  
->2.线程B从主内存中读取最新的共享变量到自己的工作内存中
+>2.线程B从主内存中读取最新的共享变量到自己的工作内存中  
 **问题：根据上面步骤，可能会出现问题，当线程A更新工作内存中的变量，但并没及时会写到主内存，此时B线程去读主内存的共享变量，读到的过期的脏数据。这时候，为了避免这种情况的出现，可以通过同步机制或者通过volatile关键字使得每次volatile变量每次变更都会强制刷新到主内存。**
 
 当然上面说的其实**仅仅只是保证了变量的可见性，但不能保证变量的原子性**，下面图更详细展示了一个共享变量进入工作内存，在从工作内存写会主内存  
@@ -102,20 +103,20 @@ public class Singleton {
 >  private volatile  static Singleton instance=null;  
 
 ## hanppens_before原则
-**程序在执行的时候发成重排序，那Java是如何保证程序正常执行的。**这里就有两点需要介绍介绍，重点在于第二点。
+**程序在执行的时候发成重排序，那Java是如何保证程序正常执行的**。这里就有两点需要介绍介绍，重点在于第二点。
 >1、**as-if-serial**：Java遵循as-if-serial语义，即单线程执行程序时，即使发生重排序，程序的执行结果不能被改变。 
 as-if-serial保证了Java程序在单线程运行的情况下，结果的正常,让我们看起来像是顺序执行的样子。  
 >2、**happens_before**：为了使Java程序在各个平台执行正常，Java内存模型中规定了happens-before规则。**happens-before的前后两个操作不会被重排序且后者对前者内存可见**。
 
 对于happens-before,如果A线程的写操作a与B线程的读操作b之间存在happens-before关系，尽管a操作和b操作在不同线程，但是JMM会保证a操作将对b操作可见。具体happens-before规则如下：
->1、程序顺序规则：一个线程中的每一个操作，happens-before于该现场中的任意后续操作  
->2、监视器锁规则：对一个锁的解锁，happens-before于随后对这个锁的加锁  
->3、volatile变量规则：对一个volatile域的写，happens-before于任意后续对这个volatile域的读  
->4、传递性：如果A happens-before B，B happens-before C，那么A happens-before C  
->5、start()规则：如果线程A执行操作ThreadB.start(),启动线程B,那么线程B中的任意操作happens-before与线程A从ThreadB.join()操作  
->6、join()规则：如果线程A执行ThreadB.join()并成功返回，那么线程B中的任意操作happens-before于线程A从ThreadB.join()操作成功返回  
->7、程序中断规则：对线程interrupted()方法的调用先行于被终端线程的代码检测到中断时间的发生  
->8、对象finalize规则：一个对象的初始化完成（构造函数执行结束）先行于发生它的finalize()方法
+>1、**程序顺序规则**：一个线程中的每一个操作，happens-before于该现场中的任意后续操作  
+>2、**监视器锁规则**：对一个锁的解锁，happens-before于随后对这个锁的加锁  
+>3、**volatile变量规则**：对一个volatile域的写，happens-before于任意后续对这个volatile域的读  
+>4、**传递性**：如果A happens-before B，B happens-before C，那么A happens-before C  
+>5、**start()规则**：如果线程A执行操作ThreadB.start(),启动线程B,那么线程B中的任意操作happens-before与线程A从ThreadB.join()操作  
+>6、**join()规则**：如果线程A执行ThreadB.join()并成功返回，那么线程B中的任意操作happens-before于线程A从ThreadB.join()操作成功返回  
+>7、**程序中断规则**：对线程interrupted()方法的调用先行于被终端线程的代码检测到中断时间的发生  
+>8、**对象finalize规则**：一个对象的初始化完成（构造函数执行结束）先行于发生它的finalize()方法
 
 ## volatile实现原理
 之前在DCL问题中分析了instance需要用volatile修饰，那么volatile如何实现呢，在生成汇编的时候，volatile修饰的变量会多出**Lock前缀命令**，**Lock前缀指令实际上相当于一个内存屏障（也成内存栅栏）**，有关内存屏障后面会分析，这里先大致对Lock前缀这个命令了解下，这个命令主要用于两方面：
