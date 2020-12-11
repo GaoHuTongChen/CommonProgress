@@ -5,7 +5,7 @@
 ## JAVA BIO 
 同步并阻塞，服务器实现模式为一个连接一个线程，即客户端有连接请求时服务器端就需要启动一个线程进行处理，如果这个连接不做任何事情会造成不必要的线程开销，当然可以通过线程池机制改善。调用过程如下图：
 
-![Markdown](images/blockingio.jpg)
+![Markdown](../images/blockingio.jpg)
 
 * <font color="red" size=3>注意：</font><mark>kernel有2个过程，wait for data和copy data from kernel to user。直到最后copy complete后，recvfrom()才返回。此过程一直是阻塞的。</mark>
 
@@ -22,8 +22,8 @@
 # 三者对比
 IO | 描述  | JDK支持 | 使用场景
 ---|----- |--------|-----------
-Nio | 同步并阻塞 | 默认 | 连接数目比较小且固定
-Bio | 同步非阻塞 | jdk1.4 | 连接数目多且连接比较短
+Bio | 同步并阻塞 | 默认 | 连接数目比较小且固定
+Nio | 同步非阻塞 | jdk1.4 | 连接数目多且连接比较短
 Aio | 异步非阻塞 | jdk7   | 连接数目多且连接比较长
 
 
