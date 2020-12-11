@@ -37,7 +37,7 @@ Aio | 异步非阻塞 | jdk7   | 连接数目多且连接比较长
 
 > 配置验证
 
-![Markdown](images/bio.jpg)
+![Markdown](./images/bio.jpg)
 
 # SpringBoot自带Tomcat调优
 > 默认如下
